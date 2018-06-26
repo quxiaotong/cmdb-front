@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMDB系统</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div id="body">
+        <nav class="navbar navbar-inverse" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#example-navbar-collapse">
+                        <span class="sr-only">切换导航</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#"></a>
+                </div>
+                <div class="collapse navbar-collapse" id="example-navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li >
+                            <a href="/index">AWS资源</a>
+                          </li>
+                        <li>
+                            <a href="/v1/apps">业务应用</a>
+                        </li>
+                        <li>
+                            <a href="/v1/configmanage">配置管理</a>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a>欢迎您</a>
+                        </li>
+                        <li>
+                            <a href="/">安全退出</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-2">
+
+                    <div class="list-group">
+                        <a href="#" class="list-group-item active">
+                            配置管理
+                        </a>
+                        <a href="/v1/ops_configmanage" class="list-group-item">运维平台账号管理</a>
+                        <a href="/v1/wx_configmanage" class="list-group-item">微信平台账号管理</a>
+                        <a href="/v1/cmdb_user" class="list-group-item">CMDB用户管理</a>
+                    </div>
+                </div>
+                <div class="col-sm-10">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            功能
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-danger" v-on:click="show_add_confmodel">添加新用户</button>
+                                <button type="button" class="btn btn-info" v-on:click="confirmdeleteall">删除用户</button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal fade" tabindex="-1" role="dialog" id="add_confdata_model">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <h4 class="modal-title">添加用户</h4>
+                                </div>
+
+                                <form role="form" class="form-inline" id="add_confdata_from"></form>
+                                <div class="modal-body">
+                                    <table class="table table-hover table-bordered">
+                                        <tr>
+                                            <th>账号</th>
+                                            <td>
+                                                <input type="text" name="account" class="form-control" id="addaccount" v-model="account_value" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>密码</th>
+                                            <td>
+                                                <input type="password" name="secret" class="form-control" id="addsecret" v-model="secret_value" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>确认密码</th>
+                                            <td>
+                                                <input type="password" name="mark" class="form-control" id="mark_id" v-model="make_secret_value" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>权限</th>
+                                            <td>
+                                                <input type="text" name="mark" class="form-control" id="mark_id" v-model="authority" />
+                                            </td>
+                                            </tr>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="add_conf_data2db">确认并保存</button>
+                                </div>
+                                </form>
+
+                            </div>
+                            <!-- /.modal-content -->
+                        </div>
+                        <!-- /.modal-dialog -->
+                    </div>
+                    <!-- /.modal -->
+                    <div class="modal fade" tabindex="-1" role="dialog" id="modify_confdata_model">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <h4 class="modal-title">修改用户</h4>
+                                    </div>
+    
+                                    <form role="form" class="form-inline" id="modify_confdata_from"></form>
+                                    <div class="modal-body">
+                                        <table class="table table-hover table-bordered">
+                                            <tr>
+                                                <th>密码</th>
+                                                <td>
+                                                    <input type="password" name="secret" class="form-control" id="secret_id" v-model="secret_value" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>确认密码</th>
+                                                <td>
+                                                    <input type="password" name="mark" class="form-control" id="mark_id" v-model="make_secret_value" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>权限</th>
+                                                <td>
+                                                    <input type="text" name="mark" class="form-control" id="mark_id" v-model="authority" />
+                                                </td>
+                                                </tr>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="modify_conf_data2db">确认并保存</button>
+                                    </div>
+                                    </form>
+    
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
+                        <!-- /.modal -->
+                    <div class="table-responsive">
+                        <table class="table table-striped ">
+                            <thead>
+                                <tr>
+                                    <th>选中</th>
+                                    <th>用户名</th>
+                                    <th>用户权限</th>
+                                    <th>用户创建时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(res,index) in accData">
+                                    <td>
+                                        <input type="checkbox" v-bind:value="res.id" v-model="selected" />
+                                    </td>
+                                    <td>{{ res.account }}</td>
+                                    <td>{{ res.authority }}</td>
+                                    <td>{{ res.data_create_time }}</td>
+                                    <td>
+                                        <!-- <input type="button" name="" value="删除" class="btn btn-danger"  v-on:click="delete_conf_data2db(res.id)"/> -->
+                                        <input type="button" name="" value="删除" class="btn btn-danger" v-on:click="confirmdelete(res.id)" />
+                                        <input type="button" name="" value="修改" class="btn btn-info" v-on:click="modify_button(res.id,res.secret,res.authority)"
+                                        />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="http://cmdb.guokr.com/conf.js"></script> 
+<script>
+    var body = new Vue({
+        'el': "#body",
+        'data': {
+            accData: [],
+            id: "",
+            account_value: "",
+            secret_value: "",
+            authority: "",
+            make_secret_value: "",
+            selected: []
+        },
+        mounted: function () {
+            $.ajax({
+                url: window.cmdbbackurl + '/v1/cmdbaccountmanage',
+                type: 'get',
+                dataType: 'json',
+                xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+                success: (data) => {
+                    this.accData = data
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            })
+        },
+        methods: {
+            gernerateID: function (index) {
+                return index
+            },
+            show_add_confmodel: function (event) {
+                $('#add_confdata_model').modal('show')
+            },
+            modify_button: function (id,secret,authority) {
+                this.id = id
+                    this.secret_value = secret,
+                    this.authority = authority,
+                    $('#modify_confdata_model').modal('show')
+            },
+            confirmdeleteall: function () {
+                if (window.confirm("确定要删除所选数据吗")) {
+                    this.delete_all_selectd();
+                } else {
+                    console.log('已取消');
+                }
+            },
+            confirmdelete: function (id) {
+                if (window.confirm("确定要删除此数据吗")) {
+                    this.delete_conf_data2db(id);
+                } else {
+                    console.log('已取消');
+                }
+            },
+            add_conf_data2db: function () {
+                $.ajax({
+                    url: window.cmdbbackurl + "/v1/cmdbaccountmanage",
+                    type: 'POST',
+                    dataType: 'json',
+                    xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+                    processData: 'false',
+                    data: {
+                        account: this.account_value,
+                        secret: this.secret_value,
+                        make_secret_value: this.make_secret_value,
+                        authority: this.authority
+                    },
+                    success: (data) => {
+                        this.accData = data
+                    },
+                    error: function (error) {
+                        if(error.responseJSON.status == 401){
+                        $('#add_confdata_model').modal('show')
+                        layer.tips('两次密码一样!', '#addsecret', {
+                            tips: [2, '#FF3030'],  
+                            time: 2000  
+                            }); 
+                    }
+                    else if(error.responseJSON.status == 402){
+                        $('#add_confdata_model').modal('show')
+                        layer.tips('用户名已存在！', '#addaccount', {  
+                            tips: [2, '#FF3030'],  
+                            time: 2000  
+                            }); 
+                    }
+                    else {
+                        console.log(error)
+                        }
+                    }
+                })
+            },
+            modify_conf_data2db: function () {
+                $.ajax({
+                    url: window.cmdbbackurl + "/v1/cmdbaccountmanage",
+                    type: 'PUT',
+                    dataType: 'json',
+                    xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+                    data: {
+                        account_id: this.id,
+                        authority: this.authority,
+                        secret: this.secret_value,
+                        make_secret_value: this.make_secret_value
+                    },
+                    success: (data) => {
+                        this.accData = data
+                    },
+                    error: function (error) {
+                        if(error.responseJSON.status == 401){
+                        $('#add_confdata_model').modal('show')
+                        layer.tips('两次密码一样!', '#addsecret', {
+                            tips: [2, '#FF3030'],  
+                            time: 2000  
+                            }); 
+                        }
+                        else {
+                        console.log(error)
+                        }
+                    }
+                })
+            },
+            delete_all_selectd: function () {
+                selectd_id = this.selected
+                var Data = {
+                    data: JSON.stringify({
+                        account_id: selectd_id
+                    })
+                }
+                console.log(Data)
+                $.ajax({
+                    url: window.cmdbbackurl + "/v1/cmdbaccountmanage",
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: Data,
+                    xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+                    success: (data) => {
+                        this.accData = data
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                })
+            },
+            delete_conf_data2db: function (id) {
+                var Data = {
+                    data: JSON.stringify({
+                        account_id: id
+                    })
+                }
+                console.log(Data)
+                $.ajax({
+                    url: window.cmdbbackurl + "/v1/cmdbaccountmanage",
+                    type: 'DELETE',
+                    dataType: 'json',
+                    xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+                    data: Data,
+                    // data: {
+                    //     account_id: id
+                    // },
+                    success: (data) => {
+                        this.accData = data
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                })
+            }
+        },
+    })
+</script>
+
+</html>

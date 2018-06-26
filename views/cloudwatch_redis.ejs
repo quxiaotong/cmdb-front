@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>ec2监控数据</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+</head>
+
+<body style="margin: auto;">
+        <div class="panel panel-default">
+                <div class="panel-body">
+                    <form role="form" class="form-inline" id="cloudwatch_ec2_form">
+                            <div class="form-group">
+                                    <label for="name">监控项</label>
+                                    <select class="form-control" name="elasticache_monitor_item">
+                                        <option value="CacheHits">缓存命中数</option>
+                                        <option value="FreeableMemory">可用内存大小</option>
+                                    </select>
+                                </div>
+                            <div class="form-group">
+                                    <label for="name">时间范围</label>
+                                    <select class="form-control" name="end_time">
+                                        <option value="1h">最近1小时</option>
+                                        <option value="3h">最近3小时</option>
+                                        <option value="12h">最近12小时</option>
+                                        <option value="1d">最近1天</option>
+                                        <option value="3d">最近3天</option>
+                                        <option value="1w">最近1周</option>
+                                    </select>
+                                </div>
+                        <div class="form-group">
+                            <label for="name">数据统计</label>
+                            <select class="form-control" name="polymerization">
+                                <option value="Average">平均值</option>
+                                <option value="Minimum">最大值</option>
+                                <option value="Maximum">最小值</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">数据周期</label>
+                            <select class="form-control" name="period">
+                                <option value="5m">5分钟</option>
+                                <option value="15m">15分钟</option>
+                                <option value="1h">1小时</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" class="btn btn-default" onclick="query()">查询</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+    <div id="container" style="width: 80%; height: 500px; margin: 0 auto">
+    </div>
+</body>
+<script src="http://cmdb.guokr.com/conf.js"></script> 
+<script>
+    function query() {
+        var ec2_monitor_item = $('#ec2_monitor_item').val
+        $.ajax({
+            url: window.cmdbbackurl + window.location.pathname,
+            type: 'get',
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: $('#cloudwatch_ec2_form').serialize(),
+            success: function (data) {
+                var options = {
+                    chart: {
+                        renderTo: 'container',
+                        zoomType: 'x'
+                    },
+                    title: {
+                        text: 'redis监控数据'
+                    },
+                    subtitle: {
+                        text: '点击并拖动绘图区域的放大'
+                    },
+                    xAxis: {
+                        title: {
+                            enabled: false
+                        },
+                        labels: {
+                            formatter: function () {
+                                return this.value.substring(5, 10);
+                            },
+                            step: 3
+                        },
+                        tickInterval: 1
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'redis命中数'
+                        },
+                        labels: {
+                            formatter: function () {
+                                return this.value;
+                            }
+                        },
+                        startOnTick: false,
+                        showFirstLabel: false
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            return '' + '日期：' + this.x +
+                                '<br/>缓存命中数：' + Highcharts.numberFormat(this.y, 2);
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        area: {
+                            fillColor: {
+                                linearGradient: [0, 0, 0, 300],
+                                stops: [
+                                    [0, '#4572A7'],
+                                    [1, 'rgba(2,0,0,0)']
+                                ]
+                            },
+                            lineWidth: 1,
+                            marker: {
+                                enabled: false,
+                                states: {
+                                    hover: {
+                                        enabled: true,
+                                        radius: 5
+                                    }
+                                }
+                            },
+                            shadow: false,
+                            states: {
+                                hover: {
+                                    lineWidth: 1
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                        type: 'area',
+                        name: '缓存命中数'
+                    }]
+                }
+                var chart;
+                var myData = data[1];
+                options.series[0].data = myData;
+                //时间  
+                var myTime = data[0];
+                options.xAxis.categories = myTime;
+
+                //加载图表  
+                chart = new Highcharts.Chart(options);
+
+            },
+            error: function (error) {
+                console.log(222222222222222222222222)
+            }
+        })
+    }
+</script>
+
+</html>

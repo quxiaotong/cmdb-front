@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>CMDB系统</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js" type="text/javascript"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css"
+  />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.3.2/holder.min.js" type="text/javascript"></script>
+  <script>
+    Holder.add_theme("white", {
+      background: "#fff",
+      foreground: "#a7a7a7",
+      size: 10
+    });
+  </script>
+  <script src="https://d26b395fwzu5fz.cloudfront.net/keen-analysis-1.2.2.js" type="text/javascript"></script>
+  <link href="https://d26b395fwzu5fz.cloudfront.net/keen-dataviz-1.1.3.css" rel="stylesheet" />
+  <script src="https://d26b395fwzu5fz.cloudfront.net/keen-dataviz-1.1.3.js" type="text/javascript"></script>
+  <link rel="stylesheet" type="text/css" href="http://127.0.0.1:3000/assets/css/keen-dashboards.css" />
+  <script type="text/javascript" src="//pubnub.github.io/eon/v/eon/1.0.0/eon.js"></script>
+  <link type="text/css" rel="stylesheet" href="//pubnub.github.io/eon/v/eon/1.0.0/eon.css" />
+
+</head>
+
+<body class="keen-dashboard" style="padding-top: 80px;">
+  <div id="body">
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#example-navbar-collapse">
+            <span class="sr-only">切换导航</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div class="collapse navbar-collapse" id="example-navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li>
+              <a href="/index">AWS资源</a>
+            </li>
+            <li>
+              <a href="/v1/apps">业务应用</a>
+            </li>
+            <li>
+              <a href="/v1/configmanage">配置管理</a>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a>欢迎您</a>
+            </li>
+            <li>
+              <a href="/">安全退出</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-2">
+          <div class="list-group">
+            <a href="#" class="list-group-item active">
+              业务服务
+            </a>
+            <a href="/v1/apps/fantuan" class="list-group-item">饭团</a>
+            <a href="/v1/apps/guokr" class="list-group-item">果壳</a>
+          </div>
+        </div>
+
+        <div class="col-sm-10">
+          <div class="row">
+            <div class="col-sm-4 col-md-4">
+              <div class="chart-wrapper">
+                <div class="chart-title" style="background-color: rgb(179, 255, 0);">
+                  <a class="icon-bar" href="/v1/apps/guokr">果壳-科学人</a>
+                </div>
+                <div class="chart-stage">
+                  <div id="science" style="background-color: rgb(97, 0, 252);color: rgb(63, 235, 36);font-weight: bold;text-align: center;font-size: 16px;">
+
+                    <div class="col-sm-12">
+                      <ul id="science_response_time" v-for="item in res_data">
+                        <li>
+                          <span>最大响应时间</span>: {{ item.science.response_time.value_max }}
+                        </li>
+                        <li>
+                          <span>最小响应时间</span>: {{ item.science.response_time.value_min }}
+                        </li>
+                        <li>
+                          <span>平均时间</span>: {{ item.science.response_time.value_avg }}
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="col-sm-12">
+                      <div id="science_response_code">
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+                <div class="chart-notes" style="color: rgb(63, 235, 36);font-weight: bold;text-align: center;font-size: 16px;background-color: rgb(252, 235, 0);">
+                  <a id="science-status" class="icon-bar" href="/v1/apps/guokr" onmouseover="show_status_standard(this)"> {{ science_status }}</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+              <div class="chart-wrapper">
+                <div class="chart-title" style="background-color: rgb(179, 255, 0);">
+                  <a class="icon-bar" href="/v1/apps/guokr">果壳-mooc学院</a>
+                </div>
+                <div class="chart-stage">
+                  <div id="science" style="background-color: rgb(97, 0, 252);color: rgb(63, 235, 36);font-weight: bold;text-align: center;font-size: 16px;">
+                    <div class="col-sm-12">
+                      <ul id="mooc-list" v-for="item in res_data">
+                        <li>
+                          <span>最大响应时间</span>: {{ item.mooc.response_time.value_max }}
+                        </li>
+                        <li>
+                          <span>最小响应时间</span>: {{ item.mooc.response_time.value_min }}
+                        </li>
+                        <li>
+                          <span>平均时间</span>: {{ item.mooc.response_time.value_avg }}
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="col-sm-12">
+                      <div id="mooc_response_code">
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+                <div class="chart-notes" style="color: rgb(63, 235, 36);font-weight: bold;text-align: center;font-size: 16px;background-color: rgb(252, 235, 0);">
+                  <a id="mooc-status" class="icon-bar" href="/v1/apps/guokr" onmouseover="show_status_standard(this)">{{ mooc_status }}</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+              <div class="chart-wrapper">
+                <div class="chart-title">
+                  Cell Title
+                </div>
+                <div class="chart-stage">
+                  <div id="chart-03">
+                    <img data-src="holder.js/100%x180/white">
+                  </div>
+                </div>
+                <div class="chart-notes">
+                  Notes about this chart
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+              <div class="chart-wrapper">
+                <div class="chart-title">
+                  Cell Title
+                </div>
+                <div class="chart-stage">
+                  <div id="chart-04">
+                    <img data-src="holder.js/100%x180/white">
+                  </div>
+                </div>
+                <div class="chart-notes">
+                  Notes about this chart
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="col-sm-6 col-md-3">
+              <div class="chart-wrapper">
+                <div class="chart-title">
+                  Cell Title
+                </div>
+                <div class="chart-stage">
+                  <div id="chart-05">
+                    <img data-src="holder.js/100%x180/white">
+                  </div>
+                </div>
+                <div class="chart-notes">
+                  Notes about this chart
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="chart-wrapper">
+                <div class="chart-title">
+                  Cell Title
+                </div>
+                <div class="chart-stage">
+                  <div id="chart-06">
+                    <img data-src="holder.js/100%x180/white">
+                  </div>
+                </div>
+                <div class="chart-notes">
+                  Notes about this chart
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="chart-wrapper">
+                <div class="chart-title">
+                  Cell Title
+                </div>
+                <div class="chart-stage">
+                  <div id="chart-07">
+
+                  </div>
+                </div>
+                <div class="chart-notes">
+                  Notes about this chart
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="chart-wrapper">
+                <div class="chart-title">
+                  Cell Title
+                </div>
+                <div class="chart-stage">
+                  <div id="chart-08">
+
+                  </div>
+                </div>
+                <div class="chart-notes">
+                  Notes about this chart
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdn.bootcss.com/layer/3.1.0/layer.js"></script>
+<script src="http://cmdb.guokr.com/conf.js"></script>
+<script>
+  function show_status_standard(obj) {
+    var targar_id = obj.id;
+    console.log(targar_id)
+    layer.tips('1.每隔5秒访问一次，连续出现3次状态码不是200则为异常；2.上面展示的是1小时内的响应时间和状态码分布', "#" + targar_id, {
+      tips: [2, '#FF3030'],
+      time: 2000
+    });
+  }
+  var pubnub = new PubNub({
+    publishKey: 'demo',
+    subscribeKey: 'demo'
+  });
+
+  var body = new Vue({
+    'el': "#body",
+    'data': {
+      res_data: "",
+      science_status: "正常",
+      mooc_status: "正常",
+    },
+    mounted: function () {
+      $.ajax({
+        url: window.cmdbbackurl + "/v1/apps/zabbix/status",
+        // url: "http://127.0.0.1:14500" + "/v1/apps/zabbix/status",
+        type: 'get',
+        dataType: 'json',
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true,
+        success: (data) => {
+          this.res_data = data
+          if (data[0]["science"]["response_code"]["value_max"] > 200) {
+            this.science_status = "不正常"
+          } 
+          if (data[0]["mooc"]["response_code"]["value_max"] == 200) {
+            this.mooc_status = "不正常"
+          }
+
+          for (app in data[0]) {
+            eon.chart({
+              pubnub: pubnub,
+              channels: ['donut-chart'],
+              generate: {
+                bindto: "#" + app + "_response_code",
+                data: {
+                  labels: true,
+                  type: 'donut',
+                }
+              }
+            });
+            pubnub.publish({
+              channel: 'donut-chart',
+              message: {
+                eon: {
+                  '200': data[0][app]["response_code"]["200"],
+                  '其他': data[0][app]["response_code"]["other"],
+                }
+              }
+            })
+          }
+
+
+        }
+      })
+    },
+    methods: {
+
+    }
+  })
+</script>
+
+</html>

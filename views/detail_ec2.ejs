@@ -1,0 +1,777 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>ec2监控数据</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+</head>
+
+<body>
+    <div id="body">
+        <nav class="navbar navbar-inverse" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#example-navbar-collapse">
+                        <span class="sr-only">切换导航</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#"></a>
+                </div>
+                <div class="collapse navbar-collapse" id="example-navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li >
+                            <a href="/index">AWS资源</a>
+                          </li>
+                        <li>
+                            <a href="/v1/apps">业务应用</a>
+                        </li>
+                        <li>
+                            <a href="/v1/configmanage">配置管理</a>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a>欢迎您</a>
+                        </li>
+                        <li>
+                            <a href="/">安全退出</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-2">
+                    <a href="http://127.0.0.1:3000/v1/awsserver/ec2" class="list-group-item active">AWS资源</a>
+                    <a href="http://127.0.0.1:3000/v1/awsserver/ec2" class="list-group-item">EC2</a>
+                    <a href="http://127.0.0.1:3000/v1/awsserver/rds" class="list-group-item">RDS</a>
+                    <a href="http://127.0.0.1:3000/v1/awsserver/elasticache" class="list-group-item">ElastiCache</a>
+                    <a href="http://127.0.0.1:3000/v1/awsserver/elb" class="list-group-item">ELB</a>
+                    <a href="http://127.0.0.1:3000/v1/awsserver/volume" class="list-group-item">Volume</a>
+                    <a href="http://127.0.0.1:3000/v1/awsserver/s3" class="list-group-item">S3</a>
+                    <a href="http://127.0.0.1:3000/v1/awsserver/iam" class="list-group-item">IAM</a>
+                </div>
+                <div class="col-sm-10">
+                    <ol class="breadcrumb">
+                        <li class="active">AWS资源 {{ path }}</li>
+                    </ol>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            基础信息
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped ">
+                                <thead>
+                                    <tr>
+                                        <th>实例ID</th>
+                                        <th>实例名字</th>
+                                        <th>运行状态</th>
+                                        <th>内网IP</th>
+                                        <th>公网IP</th>
+                                        <th>创建时间</th>
+                                        <th>实例类型</th>
+                                        <th>实例CPU</th>
+                                        <th>实例内存</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="aws_data_tb">
+                                    <tr v-for="ec2 in ec2Data">
+                                        <td>{{ ec2.instance_id }}</td>
+                                        <td>{{ ec2.name }}</td>
+                                        <td>{{ ec2.run_state }}</td>
+                                        <td>{{ ec2.private_ip }}</td>
+                                        <td>{{ ec2.public_ip }}</td>
+                                        <td>{{ ec2.aws_create_time }}</td>
+                                        <td>{{ ec2.instance_type }}</td>
+                                        <td>{{ ec2.cpu_num}}U</td>
+                                        <td>{{ ec2.memory_num }}G</td>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            磁盘使用情况
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped ">
+                                <thead>
+                                    <tr>
+                                        <th>磁盘设备名称</th>
+                                        <th>总容量</th>
+                                        <th>已用容量</th>
+                                        <th>可用容量</th>
+                                        <th>已用容量百分比</th>
+                                        <th>挂载路径</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in disk">
+                                        <td>{{ item.device }}</td>
+                                        <td>{{ item.all_size }}</td>
+                                        <td>{{ item.used_size }}</td>
+                                        <td>{{ item.avail_size }}</td>
+                                        <td>{{ item.used_percent }}</td>
+                                        <td>{{ item.mount_dir }}</td>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                内存使用情况
+                            </div>
+
+
+                            <div class="panel-body">
+                                <form role="form" class="form-inline" id="ec2_memery_status_form">
+                                    <!-- <div class="form-group">
+                                        <label for="name">监控项</label>
+                                        <select class="form-control" name="sys_status">
+                                            <option value="cpu">cpu利用率</option>
+                                            <option value="memery">内存消耗</option>
+                                        </select>
+                                    </div> -->
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="name">时间范围</label>
+                                            <select class="form-control" name="end_time">
+                                                <option value="1h">最近1小时</option>
+                                                <option value="3h">最近3小时</option>
+                                                <option value="12h">最近12小时</option>
+                                                <option value="1d">最近1天</option>
+                                                <option value="3d">最近3天</option>
+                                                <option value="1w">最近1周</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="name">数据统计</label>
+                                            <select class="form-control" name="polymerization">
+                                                <option value="Average">平均值</option>
+                                                <option value="Minimum">最大值</option>
+                                                <option value="Maximum">最小值</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="name">数据周期</label>
+                                            <select class="form-control" name="period">
+                                                <option value="5m">5分钟</option>
+                                                <option value="15m">15分钟</option>
+                                                <option value="1h">1小时</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-info" v-on:click="ec2_status_query" value="memery">查询</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div id="ec2_memery_status" style="width: 100%; height: 400px; margin: 0 auto">
+                                </div>
+
+                                <div class="modal fade" id="process_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="myModalLabel">服务器进程资源占用排名</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div id="container" style="width: 500px; height: 400px; margin: 0 auto">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <!-- /.modal-content -->
+                                    </div>
+                                    <!-- /.modal -->
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                CPU使用情况
+                            </div>
+
+                            <div class="panel-body">
+                                <form role="form" class="form-inline" id="ec2_cpu_status_form">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="name">时间范围</label>
+                                            <select class="form-control" name="end_time">
+                                                <option value="1h">最近1小时</option>
+                                                <option value="3h">最近3小时</option>
+                                                <option value="12h">最近12小时</option>
+                                                <option value="1d">最近1天</option>
+                                                <option value="3d">最近3天</option>
+                                                <option value="1w">最近1周</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="name">数据统计</label>
+                                            <select class="form-control" name="polymerization">
+                                                <option value="Average">平均值</option>
+                                                <option value="Minimum">最大值</option>
+                                                <option value="Maximum">最小值</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="name">数据周期</label>
+                                            <select class="form-control" name="period">
+                                                <option value="5m">5分钟</option>
+                                                <option value="15m">15分钟</option>
+                                                <option value="1h">1小时</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-info" v-on:click="ec2_status_query" value="cpu">查询</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div id="ec2_cpu_status" style="width: 80%; height: 400px; margin: 0 auto">
+                                </div>
+
+                                <div class="modal fade" id="process_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="myModalLabel">服务器进程资源占用排名</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div id="container" style="width: 500px; height: 400px; margin: 0 auto">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <!-- /.modal-content -->
+                                    </div>
+                                    <!-- /.modal -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="http://cmdb.guokr.com/conf.js"></script> 
+<script>
+    function query_ec2_status(time_point, host, monitor_item) {
+        $.ajax({
+            url: window.cmdbbackurl + "/v1/awsserver" + window.location.pathname + "/point_status",
+            type: 'get',
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                time_point: time_point,
+                host_ip: host,
+                monitor_item: monitor_item
+            },
+            success: (d) => {
+                console.log(d)
+                var chart = {
+                    type: 'bar'
+                };
+                var title = {
+                    text: host + "进程的" + monitor_item + "使用情况"
+                };
+                var subtitle = {
+                    text: "top10进程排名"
+                };
+                var xAxis = {
+                    categories: ['Process Name'],
+                    title: {
+                        text: null
+                    }
+                };
+                var yAxis = {
+                    min: 0,
+                    title: {
+                        text: monitor_item + "占用率",
+                        align: 'high'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                };
+                var tooltip = {
+                    valueSuffix: '% '
+                };
+                var plotOptions = {
+                    bar: {
+                        dataLabels: {
+                            enabled: true
+                        }
+                    }
+                };
+                var legend = {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: -40,
+                    y: 100,
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) ||
+                        '#FFFFFF'),
+                    shadow: true
+                };
+                var credits = {
+                    enabled: false
+                };
+
+                var series = [];
+                for (var i = 0; i < d[1].length; i++) {
+                    series[i] = {
+                        name: d[1][i] + " " + d[0][i],
+                        data: [d[2][i]]
+
+                    }
+                };
+
+                var json = {};
+                json.chart = chart;
+                json.title = title;
+                json.subtitle = subtitle;
+                json.tooltip = tooltip;
+                json.xAxis = xAxis;
+                json.yAxis = yAxis;
+                json.series = series;
+                json.plotOptions = plotOptions;
+                json.legend = legend;
+                json.credits = credits;
+                $('#container').highcharts(json);
+
+            },
+            error: function (error) {
+                console.log(error)
+            }
+        })
+    }
+
+    var body = new Vue({
+        'el': "#body",
+        'data': {
+            ec2Data: "",
+            path: window.location.pathname,
+            disk: ""
+        },
+        mounted: function () {
+            $.ajax({
+                url: window.cmdbbackurl + '/v1/awsserver' + window.location.pathname,
+                type: 'get',
+                dataType: 'json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: (data) => {
+                    this.ec2Data = data
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
+            $.ajax({
+                url: window.cmdbbackurl + '/v1/awsserver' + window.location.pathname + "/disk",
+                type: 'get',
+                dataType: 'json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: (data) => {
+                    this.disk = data
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
+            $.ajax({
+                url: window.cmdbbackurl + "/v1/awsserver" + window.location.pathname + "/" +
+                    'cpu',
+                type: 'get',
+                dataType: 'json',
+                data: {
+                    end_time: "1h",
+                    polymerization: "Average",
+                    period: "5m"
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: (data) => {
+                    const json = getDataSource(data)
+                    $('#ec2_' + 'cpu' + '_status').highcharts(json);
+                    function getDataSource(args) {
+                        var chart = {
+                            type: 'spline'
+                        };
+                        var title = {
+                            text: "服务器" + args[0]["monitor_item"] +
+                                "使用状态"
+                        };
+                        var subtitle = {
+                            text: args[0]["monitor_item"]
+                        };
+                        var xAxis = {
+                            categories: args[0]["value"][(args[0]["value"].length -
+                                1)]
+                        };
+                        var yAxis = {
+                            title: {
+                                text: args[0]["monitor_item"] + "使用率"
+                            },
+                            labels: {
+                                formatter: function () {
+                                    return this.value + '\xB0';
+                                }
+                            },
+                            lineWidth: 2
+                        };
+                        var tooltip = {
+                            crosshairs: true,
+                            shared: true
+                        };
+                        var plotOptions = {
+                            spline: {
+                                marker: {
+                                    radius: 4,
+                                    lineColor: '#666666',
+                                    lineWidth: 1
+                                }
+                            },
+                            series: {
+                                cursor: 'pointer',
+                                events: {
+                                    click: function (e) {
+                                        $('#process_model').modal(
+                                            'show')
+                                        query_ec2_status(e.point.category,
+                                            e.point.series.name,
+                                            json.subtitle.text);
+                                        // $('#process_model').modal('show')
+                                        // alert(e.point.category);
+                                    }
+                                }
+                            },
+                        };
+                        var series = [];
+                        if (args[0]["monitor_item"] == "cpu") {
+                            for (var i = 0; i < (args.length); i++) {
+                                series[i] = {
+                                    name: args[i]["host"] + ":" + args[i][
+                                        "value"
+                                    ][2]["quota"],
+                                    marker: {
+                                        symbol: 'square'
+                                    },
+                                    data: args[i]["value"][2]["value"]
+                                }
+                            }
+                        } else if (args[0]["monitor_item"] == "memery") {
+                            for (var i = 0; i < (args.length); i++) {
+                                series[i] = {
+                                    name: args[i]["host"] + ":" + args[i][
+                                        "value"
+                                    ][1]["quota"],
+                                    marker: {
+                                        symbol: 'square'
+                                    },
+                                    data: args[i]["value"][1]["value"]
+                                }
+                            }
+                        }
+                        var json = {};
+                        json.chart = chart;
+                        json.title = title;
+                        json.subtitle = subtitle;
+                        json.tooltip = tooltip;
+                        json.xAxis = xAxis;
+                        json.yAxis = yAxis;
+                        json.series = series;
+                        json.plotOptions = plotOptions;
+
+                        return json
+                    }
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
+            $.ajax({
+                url: window.cmdbbackurl + "/v1/awsserver" + window.location.pathname + "/" +
+                    'memery',
+                type: 'get',
+                dataType: 'json',
+                data: {
+                    end_time: "1h",
+                    polymerization: "Average",
+                    period: "5m"
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: (data) => {
+                    const json = getDataSource(data)
+                    $('#ec2_' + 'memery' + '_status').highcharts(json);
+                    function getDataSource(args) {
+                        var chart = {
+                            type: 'spline'
+                        };
+                        var title = {
+                            text: "服务器" + args[0]["monitor_item"] +
+                                "使用状态"
+                        };
+                        var subtitle = {
+                            text: args[0]["monitor_item"]
+                        };
+                        var xAxis = {
+                            categories: args[0]["value"][(args[0]["value"].length -
+                                1)]
+                        };
+                        var yAxis = {
+                            title: {
+                                text: args[0]["monitor_item"] + "使用情况"
+                            },
+                            labels: {
+                                formatter: function () {
+                                    return this.value + '\xB0';
+                                }
+                            },
+                            lineWidth: 2
+                        };
+                        var tooltip = {
+                            crosshairs: true,
+                            shared: true
+                        };
+                        var plotOptions = {
+                            spline: {
+                                marker: {
+                                    radius: 4,
+                                    lineColor: '#666666',
+                                    lineWidth: 1
+                                }
+                            },
+                            series: {
+                                cursor: 'pointer',
+                                events: {
+                                    click: function (e) {
+                                        $('#process_model').modal(
+                                            'show')
+                                        query_ec2_status(e.point.category,
+                                            e.point.series.name,
+                                            json.subtitle.text);
+                                        // $('#process_model').modal('show')
+                                        // alert(e.point.category);
+                                    }
+                                }
+                            },
+                        };
+                        var series = [];
+                        if (args[0]["monitor_item"] == "cpu") {
+                            for (var i = 0; i < (args.length); i++) {
+                                series[i] = {
+                                    name: args[i]["host"] + ":" + args[i][
+                                        "value"
+                                    ][2]["quota"],
+                                    marker: {
+                                        symbol: 'square'
+                                    },
+                                    data: args[i]["value"][2]["value"]
+                                }
+                            }
+                        } else if (args[0]["monitor_item"] == "memery") {
+                            for (var i = 0; i < (args.length); i++) {
+                                series[i] = {
+                                    name: args[i]["host"] + ":" + args[i][
+                                        "value"
+                                    ][1]["quota"],
+                                    marker: {
+                                        symbol: 'square'
+                                    },
+                                    data: args[i]["value"][1]["value"]
+                                }
+                            }
+                        }
+                        var json = {};
+                        json.chart = chart;
+                        json.title = title;
+                        json.subtitle = subtitle;
+                        json.tooltip = tooltip;
+                        json.xAxis = xAxis;
+                        json.yAxis = yAxis;
+                        json.series = series;
+                        json.plotOptions = plotOptions;
+
+                        return json
+                    }
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
+        },
+        methods: {
+            ec2_status_query: function (event) {
+                var monitor_item = event.target.value
+                $.ajax({
+                    url: window.cmdbbackurl + "/v1/awsserver" + window.location.pathname +
+                        "/" + monitor_item,
+                    type: 'get',
+                    dataType: 'json',
+                    data: $('#ec2_' + monitor_item + '_status_form').serialize(),
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    success: (data) => {
+                        const json = getDataSource(data)
+                        $('#ec2_' + monitor_item + '_status').highcharts(json);
+
+                        function getDataSource(args) {
+                            var chart = {
+                                type: 'spline'
+                            };
+                            var title = {
+                                text: "此业务各服务器" + args[0]["monitor_item"] +
+                                    "使用状态"
+                            };
+                            var subtitle = {
+                                text: args[0]["monitor_item"]
+                            };
+                            var xAxis = {
+                                categories: args[0]["value"][(args[0]["value"].length -
+                                    1)]
+                            };
+                            var yAxis = {
+                                title: {
+                                    text: args[0]["monitor_item"] + "占用率"
+                                },
+                                labels: {
+                                    formatter: function () {
+                                        return this.value + '\xB0';
+                                    }
+                                },
+                                lineWidth: 2
+                            };
+                            var tooltip = {
+                                crosshairs: true,
+                                shared: true
+                            };
+                            var plotOptions = {
+                                spline: {
+                                    marker: {
+                                        radius: 4,
+                                        lineColor: '#666666',
+                                        lineWidth: 1
+                                    }
+                                },
+                                series: {
+                                    cursor: 'pointer',
+                                    events: {
+                                        click: function (e) {
+                                            $('#process_model').modal(
+                                                'show')
+                                            query_ec2_status(e.point.category,
+                                                e.point.series.name,
+                                                json.subtitle.text);
+                                            // $('#process_model').modal('show')
+                                            // alert(e.point.category);
+                                        }
+                                    }
+                                },
+                            };
+                            var series = [];
+                            if (args[0]["monitor_item"] == "cpu") {
+                                for (var i = 0; i < (args.length); i++) {
+                                    series[i] = {
+                                        name: args[i]["host"] + ":" + args[i][
+                                            "value"
+                                        ][2]["quota"],
+                                        marker: {
+                                            symbol: 'square'
+                                        },
+                                        data: args[i]["value"][2]["value"]
+                                    }
+                                }
+                            } else if (args[0]["monitor_item"] == "memery") {
+                                for (var i = 0; i < (args.length); i++) {
+                                    series[i] = {
+                                        name: args[i]["host"] + ":" + args[i][
+                                            "value"
+                                        ][1]["quota"],
+                                        marker: {
+                                            symbol: 'square'
+                                        },
+                                        data: args[i]["value"][1]["value"]
+                                    }
+                                }
+                            }
+                            var json = {};
+                            json.chart = chart;
+                            json.title = title;
+                            json.subtitle = subtitle;
+                            json.tooltip = tooltip;
+                            json.xAxis = xAxis;
+                            json.yAxis = yAxis;
+                            json.series = series;
+                            json.plotOptions = plotOptions;
+
+                            return json
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                })
+            }
+
+        }
+    })
+
+</script>
+
+</html>
