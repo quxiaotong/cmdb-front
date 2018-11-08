@@ -34,6 +34,9 @@
                         <li>
                             <a href="/v1/configmanage">配置管理</a>
                         </li>
+                        <li>
+                            <a href="/v1/sys_configmanage">系统配置管理</a>
+                        </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li>
@@ -52,11 +55,9 @@
 
                     <div class="list-group">
                         <a href="#" class="list-group-item active">
-                            配置管理
+                            项目名称
                         </a>
-                        <a href="/v1/ops_configmanage" class="list-group-item">运维平台账号管理</a>
-                        <a href="/v1/wx_configmanage" class="list-group-item">微信平台账号管理</a>
-                        <a href="/v1/cmdb_user" class="list-group-item">CMDB用户管理</a>
+                        <a href="#" class="list-group-item">cmdb</a>
                     </div>
                 </div>
                 <div class="col-sm-10">
@@ -66,8 +67,8 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <button type="button" class="btn btn-danger" v-on:click="show_add_confmodel">添加新数据</button>
-                                <button type="button" class="btn btn-info"  v-on:click="confirmdeleteall">删除选中数据</button>
+                                <button type="button" class="btn btn-danger" v-on:click="show_add_confmodel">添加配置项</button>
+                                <button type="button" class="btn btn-info"  v-on:click="delete_all_selectd">删除选中配置</button>
                             </div>
 
                         </div>
@@ -87,45 +88,15 @@
                                 <div class="modal-body">
                                     <table class="table table-hover table-bordered">
                                         <tr>
-                                            <th>用途</th>
+                                            <th>配置项</th>
                                             <td>
-                                                <input type="text" name="platform" class="form-control" id="platform_id" v-model="use_type"/>
+                                                <input type="text" name="platform" class="form-control" id="platform_id" v-model="key"/>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>名称</th>
+                                            <th>配置值</th>
                                             <td>
-                                                <input type="text" name="account" class="form-control" id="account_id" v-model="name"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>类型</th>
-                                            <td>
-                                                <input type="text" name="secret" class="form-control" id="secret_id" v-model="type"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>登录邮箱</th>
-                                            <td>
-                                                <input type="text" name="mark" class="form-control" id="mark_id" v-model="mail"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>登录密码</th>
-                                            <td>
-                                                <input type="text" name="mark" class="form-control" id="mark_id" v-model="secret"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>持有人</th>
-                                            <td>
-                                                <input type="text" name="mark" class="form-control" id="mark_id" v-model="use_name"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>电话</th>
-                                            <td>
-                                                <input type="text" name="mark" class="form-control" id="mark_id" v-model="phone"/>
+                                                <input type="text" name="account" class="form-control" id="account_id" v-model="value"/>
                                             </td>
                                         </tr>
                                     </table>
@@ -134,6 +105,7 @@
                                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                                     <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="add_conf_data2db">添加并保存</button>
                                     <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="modify_data2db">修改并保存</button>
+
                                 </div>
                                 </form>
 
@@ -144,47 +116,44 @@
                     </div>
                     <!-- /.modal -->
 
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            配置列表
+                        </div>
+                        <div class="panel-body">
+
                     <div class="table-responsive">
                         <table class="table table-striped ">
                             <thead>
                                 <tr>
                                     <th>选中</th>
                                     <!-- <th>ID</th> -->
-                                    <th>用途</th>
-                                    <th>名称</th>
-                                    <th>类型</th>
-                                    <th>登录邮箱</th>
-                                    <th>登录密码</th>
-                                    <th>持有人</th>
-                                    <th>电话</th>
-                                    <th>数据最新更新时间</th>
-                                    <th>数据录入时间</th>
-                                    <!-- <th>监控数据</th> -->
+                                    <th>配置项</th>
+                                    <th>配置值</th>
+                                    <th>最新更新时间</th>
+                                    <th>更新人员</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(res,index) in accData">
                                     <td>
-                                        <input type="checkbox"  v-bind:value="res.id" v-model="selected"/>
+                                        <input type="checkbox" v-bind:value="res.id" v-model="selected"/>
                                     </td>
                                     <!-- <td>{{ res.id }}</td> -->
-                                    <td>{{ res.use_type }}</td>
-                                    <td>{{ res.name }}</td>
-                                    <td>{{ res.type }}</td>
-                                    <td>{{ res.mail }}</td>
-                                    <td>{{ res.secret }}</td>
-                                    <td>{{ res.use_name }}</td>
-                                    <td>{{ res.phone }}</td>
+                                    <td>{{ res.key }}</td>
+                                    <td>{{ res.value }}</td>
                                     <td>{{ res.data_update_time }}</td>
-                                    <td>{{ res.data_create_time }}</td>
+                                    <td>{{ res.user_name }}</td>
                                     <td>
-                                        <input type="button" name="" value="删除" class="btn btn-danger"  v-on:click="confirmdelete(res.id)"/>
-                                        <input type="button" name="" value="修改" class="btn btn-info" v-on:click="modify_button(res.id,res.use_type,res.name,res.mail,res.secret,res.use_name,res.type,res.phone)" />
+                                        <input type="button" name="" value="删除" class="btn btn-danger"  v-on:click="delete_conf_data2db(res.id)"/>
+                                        <input type="button" name="" value="修改" class="btn btn-info" v-on:click="modify_button(res.id,res.key,res.value)" />
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
 
                 </div>
             </div>
@@ -192,31 +161,32 @@
     </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="http://cmdb.guokr.com/conf.js"></script> 
+<script src="http://cmdb.guokr.com/conf.js"></script>
 <script>
     var body = new Vue({
         'el': "#body",
         'data': {
             accData: [],
             id:"",
-            use_type:"",
-            name:"",
-            mail:"",
-            secret:"",
-            type:"",
-            use_name:"",
-            phone:"",
-            selected: []
+            key:"",
+            value:"",
+            selected: [],
+            app_name: "cmdb",
+            user_name: "quxiaotong"
         },
         mounted: function () {
             $.ajax({
-                url: window.cmdbbackurl + '/v1/wxaccountmanage',
+                url: window.cmdbbackurl + '/v1/sysconfigmanage',
+                // url: 'http://127.0.0.1:14500/v1/sysconfigmanage',
                 type: 'get',
                 dataType: 'json',
                 xhrFields: {
                 withCredentials: true
             },
             crossDomain: true,
+                data: {
+                    app_name: this.app_name
+                },
                 success: (data) => {
                     this.accData = data
                 },
@@ -226,50 +196,35 @@
             })
         },
         methods: {
+            gernerateID: function (index) {
+                return index
+            },
             show_add_confmodel: function (event) {
                 $('#add_confdata_model').modal('show')
             },
-            modify_button: function(id,use_type,name,mail,secret,use_name,type,phone){
+            modify_button: function(id,key,value){
                 this.id = id
-                this.use_type=use_type,
-                this.name=name,
-                this.mail=mail,
-                this.secret=secret,
-                this.use_name=use_name,
-                this.type=type,
-                this.phone=phone,
+                this.key=key,
+                this.value=value,
                 $('#add_confdata_model').modal('show')
             },
-            confirmdeleteall: function(){
-                if (window.confirm ("确定要删除所选数据吗")){
-                    this.delete_all_selectd();
-                }else{
-                    console.log('已取消');}
-                },
-            confirmdelete: function(id){
-                if (window.confirm ("确定要删除此数据吗")){
-                    this.delete_conf_data2db(id);
-                }else{
-                    console.log('已取消');}
-                },
+            
             add_conf_data2db: function () {
                 $.ajax({
-                    url: window.cmdbbackurl + "/v1/wxaccountmanage",
+                    url: window.cmdbbackurl + "/v1/sysconfigmanage",
+                    // url: 'http://127.0.0.1:14500/v1/sysconfigmanage',
                     type: 'POST',
                     dataType: 'json',
+                    processData: 'false',
                     xhrFields: {
                 withCredentials: true
             },
             crossDomain: true,
-                    processData: 'false',
                     data: {
-                        use_type: this.use_type,
-                        name: this.name,
-                        mail: this.mail,
-                        secret: this.secret,
-                        use_name: this.use_name,
-                        type: this.type,
-                        phone: this.phone,
+                        value: this.value,
+                        key: this.key,
+                        app_name: this.app_name,
+                        user_name: this.user_name
                     },
                     success: (data) => {
                         this.accData = data
@@ -280,23 +235,22 @@
                 })
             },
             modify_data2db: function (){
+                // var access_token = $.cookie('access_token');
                 $.ajax({
-                    url: window.cmdbbackurl + "/v1/wxaccountmanage",
+                    url: window.cmdbbackurl + "/v1/sysconfigmanage",
+                    // url: 'http://127.0.0.1:14500/v1/sysconfigmanage',
                     type: 'PUT',
                     dataType: 'json',
                     xhrFields: {
                 withCredentials: true
             },
             crossDomain: true,
+                    
                     data: {
-                        account_id: this.id,
-                        use_type: this.use_type,
-                        name: this.name,
-                        mail: this.mail,
-                        secret: this.secret,
-                        use_name: this.use_name,
-                        type: this.type,
-                        phone: this.phone,
+                        value: this.value,
+                        key: this.key,
+                        app_name: this.app_name,
+                        user_name: this.user_name,
                     },
                     success: (data) => {
                         this.accData = data
@@ -309,11 +263,12 @@
             delete_conf_data2db: function (id) {
                 console.log(id)
                 var Data ={ data : JSON.stringify({
-                        account_id: id
+                    sysconfig_id: id
                     })
                 }
                 $.ajax({
-                    url: window.cmdbbackurl + "/v1/wxaccountmanage",
+                    url: window.cmdbbackurl + "/v1/sysconfigmanage",
+                    // url: 'http://127.0.0.1:14500/v1/sysconfigmanage',
                     type: 'DELETE',
                     dataType: 'json',
                     xhrFields: {
@@ -331,14 +286,14 @@
             },
             delete_all_selectd: function () {
                 selectd_id = this.selected
-                var Data = {
-                    data: JSON.stringify({
-                        account_id: selectd_id
+                console.log(selectd_id)
+                var Data ={ data : JSON.stringify({
+                    sysconfig_id: selectd_id
                     })
                 }
-                console.log(Data)
                 $.ajax({
-                    url: window.cmdbbackurl + "/v1/wxaccountmanage",
+                    url: window.cmdbbackurl + "/v1/sysconfigmanage",
+                    // url: 'http://127.0.0.1:14500/v1/sysconfigmanage',
                     type: 'DELETE',
                     dataType: 'json',
                     xhrFields: {

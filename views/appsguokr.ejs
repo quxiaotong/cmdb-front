@@ -85,6 +85,7 @@
                                                 <th>规格</th>
                                                 <th>创建时间</th>
                                                 <th>ec2内网IP</th>
+                                                <th>资源利用情况</th>
                                                 <!-- <th>监控数据</th> -->
                                             </tr>
                                         </thead>
@@ -95,6 +96,7 @@
                                                 <td>{{ res.standard }}</td>
                                                 <td>{{ res.aws_create_time }}</td>
                                                 <td>{{ res.private_ip }}</td>
+                                                <td>{{ res.utilization }}</td>
                                                 <td>
                                                     <a :href="'/ec2/' + res.private_ip">详情</a>
                                                 </td>
@@ -373,8 +375,8 @@
         },
         mounted: function () {
             $.ajax({
-                    // url: window.cmdbbackurl + "/v1/apps/" + this.app_name + "/zabbix",
-                    url: "http://127.0.0.1:14500" + "/v1/apps/" + this.app_name + "/zabbix",
+                    url: window.cmdbbackurl + "/v1/apps/" + this.app_name + "/zabbix",
+                    //url: "http://127.0.0.1:14500" + "/v1/apps/" + this.app_name + "/zabbix",
                     type: 'get',
                     dataType: 'json',
                     data: $('#app_zabbix_para').serialize(),
@@ -599,8 +601,8 @@
             app_zabbix_query: function (event) {
                 this.app_name = this.app_name,
                     $.ajax({
-                        // url: window.cmdbbackurl + "/v1/apps/" + this.app_name + "/zabbix",
-                        url: "http://127.0.0.1:14500" + "/v1/apps/" + this.app_name + "/zabbix",
+                        url: window.cmdbbackurl + "/v1/apps/" + this.app_name + "/zabbix",
+                        // url: "http://127.0.0.1:14500" + "/v1/apps/" + this.app_name + "/zabbix",
                         type: 'get',
                         dataType: 'json',
                         data: $('#app_zabbix_para').serialize(),

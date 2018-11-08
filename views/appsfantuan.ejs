@@ -82,6 +82,7 @@
                                         <th>资源实例名称</th>
                                         <th>资源实例规格</th>
                                         <th>创建时间</th>
+                                        <th>资源利用情况</th>
                                         <!-- <th>监控数据</th> -->
                                     </tr>
                                 </thead>
@@ -91,8 +92,9 @@
                                         <td>{{ res.name }}</td>
                                         <td>{{ res.standard }}</td>
                                         <td>{{ res.aws_create_time }}</td>
+                                        <td>{{ res.utilization }}</td>
                                         <!-- <td>
-                                    <a :href="'/v1/cloudwatch/ec2/' + ec2.instance_id">监控数据</a>
+                                    <a :href="'/v1/cloudwatch/ec2/' + res.instance_id">监控数据</a>
                                 </td> -->
                                     </tr>
                                 </tbody>
